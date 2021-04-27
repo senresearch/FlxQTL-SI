@@ -6,4 +6,5 @@ Directories:
 - `Analysis` : analysis code
 <!-- - `Data`     : Supplementary Data -->
 - `ProcessingData`: data processing code
+- `Result` : result files to generate plots
 - `Simulation` : simulation code

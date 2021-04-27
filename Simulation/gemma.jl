@@ -1,4 +1,5 @@
 #  implemented in linux machine & saved in linux & imac
+using Distributed, Statistics, StatsBase, DelimitedFiles, LinearAlgebra
 @everywhere using FlxQTL
 @time FlxQTL.setSeed(10,200)
 
@@ -282,9 +283,9 @@ using Plots.PlotMeasures
 
 using FlxQTL
 #scanned value comparison using -log10(P-value)
-flx0=readdlm("../test/HS1940mouse3traits-allscan.txt")
+flx0=readdlm("../Result/HS1940mouse3traits-allscan.txt")
 flx= FlxQTL.lod2logP(flx0[:,1] ,3)
-gem0=readdlm("../test/lrt3_ch19-v3.assoc.txt",'\t';header=true)
+gem0=readdlm("../Result/lrt3_ch19-v3.assoc.txt",'\t';header=true)
 
 #qqplot
 exptd=collect(1:length(flx))
@@ -309,7 +310,7 @@ annotate!((10000,-log10(0.05/length(gem0[1][:,end]))+0.2 , Plots.text("α=0.05",
 
 #run time comparison
  idx=[1;3; 7; 11; 15; 19]; 
-ptime=readdlm("../test/runtime-flxqtl_vs_gemma_hsmouse_chr1-3-7-11-15-19.txt")
+ptime=readdlm("../Result/runtime-flxqtl_vs_gemma_hsmouse_chr1-3-7-11-15-19.txt")
 
 legendLabel =["FlxQTL 3 traits" "  6 traits" "  9 traits" "  12 traits" "GEMMA 3 traits" "  6 traits" "  9 traits" " 12 traits"]
 markerLabel = [:rect :diamond :dot :X :rect :diamond :dot :X] 

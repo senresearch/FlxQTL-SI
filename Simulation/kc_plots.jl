@@ -1,4 +1,4 @@
-using DelimitedFiles
+using DelimitedFiles, LinearAlgebra
 # cases for true parameters
 τ2true=2.0.^-[10:-1:0.1;]
 
@@ -18,7 +18,8 @@ end
 
 pwr0=[τ2true zeros(10,10)]
 for j=1:10
-pwr0[:,j+1]=readdlm(string(@__DIR__,"/../test/sim_Kc/agren_pwr_$(j)th_B$(Btrue[:,:,j]).txt"))[:,2]
+# pwr0[:,j+1]=readdlm(string(@__DIR__,"/../test/sim_Kc/agren_pwr_$(j)th_B$(Btrue[:,:,j]).txt"))[:,2]
+pwr0[:,j+1]=readdlm("../Result/sim_Kc/agren_pwr_$(j)th_B$(Btrue[:,:,j]).txt")[:,2]
 end
 
 
@@ -31,8 +32,10 @@ end
     
 pwr1=[τ2true zeros(10,10)]
 for j=1:length(δ)
-pwr1[:,j+1]= readdlm(string(@__DIR__,"/../test/sim_Kc/agren1_pwr_$(j)th_B$(B1[:,:,j]).txt"))[:,2]
-pwr1[:,j+6]= readdlm(string(@__DIR__,"/../test/sim_Kc/agren2_I_pwr_$(j)th_B$(B1[:,:,j]).txt"))[:,2]
+# pwr1[:,j+1]= readdlm(string(@__DIR__,"/../test/sim_Kc/agren1_pwr_$(j)th_B$(B1[:,:,j]).txt"))[:,2]
+# pwr1[:,j+6]= readdlm(string(@__DIR__,"/../test/sim_Kc/agren2_I_pwr_$(j)th_B$(B1[:,:,j]).txt"))[:,2]
+pwr1[:,j+1]= readdlm("../Result/sim_Kc/agren1_pwr_$(j)th_B$(B1[:,:,j]).txt")[:,2]
+pwr1[:,j+6]= readdlm("../Result/sim_Kc/agren2_I_pwr_$(j)th_B$(B1[:,:,j]).txt")[:,2]
 end
 
 #Kc vs Kc=I for different Σtrue for B fixed
@@ -47,29 +50,32 @@ end
 # a=0.3; b=0.0; c=0.1 for pwr2[:,6:7]
 # A=a*ones(3,3)+(1-a)*Matrix(1.0I,3,3);C=c*ones(3,3)+(1-c)*Matrix(1.0I,3,3);B=zeros(3,3)
 # Σtrue=[A B;B C]
-######
 
+###### Aggregate simulated results into one file
 Bt=round.([sqrt(2) -sqrt(2);sqrt(2) sqrt(2)],digits=5)
 pwr2=[τ2true zeros(10,9)]
 
 a=0.3;c=0.1
-pwr2[:,2]= readdlm(string(@__DIR__,"/../test/sim_Kc/agren_pwr_B$(Bt).txt"))[:,2]
-pwr2[:,3]= readdlm(string(@__DIR__,"/../test/sim_Kc/agrenI_pwr_B$(Bt).txt"))[:,2]
-pwr2[:,4]= readdlm(string(@__DIR__,"/../test/sim_Kc/agren_pwr_B$(Bt)_Σa$(a).txt"))[:,2]
-pwr2[:,5]= readdlm(string(@__DIR__,"/../test/sim_Kc/agrenI_pwr_B$(Bt)_Σa$(a).txt"))[:,2]    
-pwr2[:,6]= readdlm(string(@__DIR__,"/../test/sim_Kc/agren_pwr_B$(Bt)_Σa$(a)bc$(c).txt"))[:,2]
-pwr2[:,7]= readdlm(string(@__DIR__,"/../test/sim_Kc/agrenI_pwr_B$(Bt)_Σa$(a)bc$(c).txt"))[:,2]
-pwr2[:,8]= readdlm(string(@__DIR__,"/../test/sim_Kc/agren_pwr_B$(Bt)_Σ=I.txt"))[:,2]
-pwr2[:,9]= readdlm(string(@__DIR__,"/../test/sim_Kc/agrenI_pwr_B$(Bt)_Σ=I.txt"))[:,2]
-pwr2[:,10]= readdlm(string(@__DIR__,"/../test/sim_Kc/agren_pwr_B$(Bt)_H(0.19)+Σ=I.txt"))[:,2] # not included in fig
+pwr2[:,2]= readdlm("../Result/sim_Kc/agren_pwr_B$(Bt).txt")[:,2]
+pwr2[:,3]= readdlm("../Result/sim_Kc/agrenI_pwr_B$(Bt).txt")[:,2]
+pwr2[:,4]= readdlm("../Result/sim_Kc/agren_pwr_B$(Bt)_Σa$(a).txt")[:,2]
+pwr2[:,5]= readdlm("../Result/sim_Kc/agrenI_pwr_B$(Bt)_Σa$(a).txt")[:,2]    
+pwr2[:,6]= readdlm("../Result/sim_Kc/agren_pwr_B$(Bt)_Σa$(a)bc$(c).txt")[:,2]
+pwr2[:,7]= readdlm("../Result/sim_Kc/agrenI_pwr_B$(Bt)_Σa$(a)bc$(c).txt")[:,2]
+pwr2[:,8]= readdlm("../Result/sim_Kc/agren_pwr_B$(Bt)_Σ=I.txt")[:,2]
+pwr2[:,9]= readdlm("../Result/sim_Kc/agrenI_pwr_B$(Bt)_Σ=I.txt")[:,2]
+pwr2[:,10]= readdlm("../Result/sim_Kc/agren_pwr_B$(Bt)_H(0.19)+Σ=I.txt")[:,2] # not included in fig
 
-open("../test/sim_Kc/agren_pwr4Sigmas.txt","w")do io
+#generate a result file for pwr2
+open("../Result/sim_Kc/agren_pwr4Sigmas.txt","w")do io
     writedlm(io,pwr2)
 end
+
 
 using Gadfly,Colors
 
 set_default_plot_size(30cm, 30cm)
+
 # power by τ^2
 layer1=Array{Array{Layer,1}}(undef,5);layer2=Array{Array{Layer,1}}(undef,5)
 # color1=distinguishable_colors(5,[RGB24(0.8,0.5,0.2)]);color2=distinguishable_colors(5,[RGB24(0.8,0.5,0.2)])
@@ -100,7 +106,7 @@ set_default_plot_size(25cm, 30cm)
 display(gridstack([Plots[1] Plots[2] ;Plots[3] Plots[4];Plots[5] Plots[6];Plots[7] Plots[8];Plots[9] Plots[10]]))
 
 #power by Sigmas
-pwr2=readdlm("../test/sim_Kc/agren_pwr4Sigmas.txt")
+pwr2=readdlm("../Result/sim_Kc/agren_pwr4Sigmas.txt")
 
 layers1=Array{Array{Layer,1}}(undef,4);
 colors1=["blue","purple","green","orange"];

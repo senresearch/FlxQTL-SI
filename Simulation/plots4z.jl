@@ -1,4 +1,4 @@
-using DelimitedFiles
+using DelimitedFiles, LinearAlgebra
 # true parameter values
 τ2true=2.0.^-[10:-1:0.1;]
 
@@ -21,17 +21,18 @@ end
 
 Z=[τ2true zeros(10,12)]
 for j=1:4
-Z[:,j+1]=readdlm(string(@__DIR__,"/../test/sim_Z/agrenZ_pwr_B$(Bfix[:,:,j])_Σa$(a)_b$(b).txt"))[:,2]
-Z[:,j+5]=readdlm(string(@__DIR__,"/../test/sim_Z/agrenZi_pwr_B$(Bfix[:,:,j])_Σa$(a)_b$(b).txt"))[:,2]
+Z[:,j+1]=readdlm("../Result/sim_Z/agrenZ_pwr_B$(Bfix[:,:,j])_Σa$(a)_b$(b).txt")[:,2]
+Z[:,j+5]=readdlm("../Result/sim_Z/agrenZi_pwr_B$(Bfix[:,:,j])_Σa$(a)_b$(b).txt")[:,2]
 end
 for j=1:3
-Z[:,j+9]=readdlm(string(@__DIR__,"/../test/sim_Z/agren_mvlmm_pwr_B$(Bfix[:,:,j])_Σa$(a)_b$(b).txt"))[:,2]   
+Z[:,j+9]=readdlm("../Result/sim_Z/agren_mvlmm_pwr_B$(Bfix[:,:,j])_Σa$(a)_b$(b).txt")[:,2]   
 end
-Z[:,end]=[readdlm(string(@__DIR__,"/../test/sim_Z/agren_mvlmm_pwr_B$(Bfix[:,:,end])_Σa$(a)_b$(b).txt"))[:,2] ;1.0]  
+Z[:,end]=[readdlm("../Result/sim_Z/agren_mvlmm_pwr_B$(Bfix[:,:,end])_Σa$(a)_b$(b).txt")[:,2] ;1.0]  
 #redraw for τ2true[3]
-z0=readdlm(string(@__DIR__,"/../test/sim_Z/agrenZ_pwr_τ2true$(τ2true[3])_Σa$(a)_b$(b).txt"))[:,2]
-z1=readdlm(string(@__DIR__,"/../test/sim_Z/agrenZi_pwr_τ2true$(τ2true[3])_Σa$(a)_b$(b).txt"))[:,2]
+z0=readdlm("../Result/sim_Z/agrenZ_pwr_τ2true$(τ2true[3])_Σa$(a)_b$(b).txt")[:,2]
+z1=readdlm("../Result/sim_Z/agrenZi_pwr_τ2true$(τ2true[3])_Σa$(a)_b$(b).txt")[:,2]
 Z[3,2:9]=[z0;z1]
+
 using Gadfly, Plots
 
 #generate effect plots from raw data

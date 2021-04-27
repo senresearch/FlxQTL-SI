@@ -67,7 +67,7 @@ Xkin=FlxQTL.Markers(labels[:,1],labels[:,2],labels[:,3],impgen');
 @time LODi,Bi,est0i=FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),Λ,ones(m),Ystd,XX,Z,true);
 @time Lodg, Bg,est0g=FlxQTL.geneScan(1,T,Λ,Ystd,XX,Z,true); #MLMM
 
-open("../result/agren_1dlod_soil_air_drgt_avg_i.txt","w")do io
+open("../Result/agren_1dlod_soil_air_drgt_avg_i.txt","w")do io
     writedlm(io,[LODs LODa LODd LODc LODi])
 end
 
@@ -78,7 +78,7 @@ for l=1:699
     inter[l,:]=[Bi[2,2,l] Bc[2,2,l] Bg[2,2,l]]
 end
 #store effects in a file
-open("../result/agren_effects_main_inter_comparison.txt", "w") do io
+open("../Result/agren_effects_main_inter_comparison.txt", "w") do io
            writedlm(io, [main inter])
        end
 
@@ -125,12 +125,12 @@ end
 ##permutation
 @time K0=FlxQTL.shrinkg(FlxQTL.kinshipMan,100,Xkin.X)
 # @time MaxLod,H1par,cutoff=FlxQTL.permTest(1000,1,K0,Ks,Ystd,XX,Z);
-# open("../result/agren_soil_maxlod_cutoff=$(cutoff).txt","w")do io
+# open("../Result/agren_soil_maxlod_cutoff=$(cutoff).txt","w")do io
 #     writedlm(io,MaxLod)
 # end
 
 @time MaxLod,H1par,cutoff=FlxQTL.permTest(1000,1,K0,Matrix(1.0I,m,m),Ystd,XX,Z);
-# open("../result/agren_i_maxlod_cutoff=$(cutoff).txt","w")do io
+# open("../Result/agren_i_maxlod_cutoff=$(cutoff).txt","w")do io
 #     writedlm(io,MaxLod)
 # end
 
@@ -168,7 +168,7 @@ effect2plot(peff;title="Effect Plots",ylabel="Effect size",legend=["Main","Inter
 
 #############
 ## 1d plot
-lod1=readdlm("../result/agren_1dlod_soil_air_drgt_avg_i.txt")
+lod1=readdlm("../Result/agren_1dlod_soil_air_drgt_avg_i.txt")
 
 p0=layers(labels[:,2],labels[:,end],lod1)
 plot1d(p0;title= "LOD scores by different Kc's ",Legend=["Kc=soil daily range temperature","Kc=air daily range temperature","Kc=weekly drought index", "Kc=Avg(soil,air,drought)","Kc=I"])
@@ -176,11 +176,11 @@ plot1d(p0;title= "LOD scores by different Kc's ",Legend=["Kc=soil daily range te
 # p1=layers(labels[:,2],labels[:,end],lod1[:,[1,end]])
 # plot1d(p1;title= "LOD scores with 95% cutoffs",yint=[4.05876 4.17416],yint_color=["red","blue"],Legend=["Kc=soil daily range temperature with blue cuttoff ","Kc=I with red cutoff"])
 
-lod11=readdlm("../result/agren_sitewise_multi_1dlod_it_soil&i_sw.txt")
+lod11=readdlm("../Result/agren_sitewise_multi_1dlod_it_soil&i_sw.txt")
 p11=layers(labels[:,2],labels[:,end],lod11[:,[2,4]])
 plot1d(p11;title="LODs by sitewise multivariate genome scan (Kc=I)",Legend=["Italy for 3-year fitness","Sweden for 3-year fitness"])
 
-lod=readdlm("../result/agren_univariate_1dlod_it_sw.txt")
+lod=readdlm("../Result/agren_univariate_1dlod_it_sw.txt")
 pt=layers(labels[:,2],labels[:,end],lod[:,1:3]);pw=layers(labels[:,2],labels[:,end],lod[:,4:end])
 plot1d(pt;title="LODs by sitewise univariate genome scan (Italy)",Legend=["Italy 2009","Italy 2010","Italy 2011"])
 plot1d(pw;title="LODs by sitewise univariate genome scan (Sweden)",Legend=["Sweden 2009","Sweden 2010","Sweden 2011"],loc="upper left")
@@ -191,7 +191,7 @@ plot1d(ps;title="Sweden : LODs by sitewise-multivariate & univariate genome scan
 
 
 ## 2d plot
-lod2=readdlm("../result/agren_2dlod_soil.txt")
+lod2=readdlm("../Result/agren_2dlod_soil.txt")
 p2=layers(labels1[:,2],labels1[:,end],lod2)
 plot2d(p2)
 

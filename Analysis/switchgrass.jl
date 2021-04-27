@@ -27,7 +27,7 @@ Z_pht=Z_pht./std(Z_pht)
 @time  lod1,B1,est01 =FlxQTL.geneScan(4,T,Matrix(1.0I,m,m),Λ,ones(m),Y3,XX,true;ρ=0.01);
 
 # the second outcome (lod) is for Kc=Gaussian (no part of the analysis in the manuscript)
-open("switchgrass_fl50_36site_yr_Z=Kc=I-Kc=photo_Gauss-colcent-overstd.txt","w")do io
+open("../Result/switchgrass_fl50_36site_yr_Z=Kc=I-Kc=photo_Gauss-colcent-overstd.txt","w")do io
     writedlm(io, [lod1 lod])
 end
 
@@ -39,7 +39,7 @@ end
 
 
 #plot for 1d scan
-fl50=readdlm("../test/switchgrass_fl50_36site_yr_Z=Kc=I-Kc=photo_Gauss-colcent-overstd.txt")
+fl50=readdlm("../Result/switchgrass_fl50_36site_yr_Z=Kc=I-Kc=photo_Gauss-colcent-overstd.txt")
 
 fl=layers(marker[:,2],marker[:,3],fl50[:,[1]])
 # plot1d(fl;title="switchgrass 10 sites by 4 yrs (36 traits,Kc=I, Z=intercept) @ α = 0.1, 0.05, 0.01",yint=[4.4575 4.85103  5.50824])
@@ -67,7 +67,7 @@ Q=[q1;q2;q3]
 # @time e_ra,B_r,est0_r = QTL.envScan(Q,4,T,Matrix(1.0I,m,m),Λ,ones(m),Y2,XX,Z_ra,true); e_ra
 
 
-open("switchgrass_fl50_centrl_36site_yr_Kc=I_dynl_tmax_min_rain.txt","w") do io
+open("../Result/switchgrass_fl50_centrl_36site_yr_Kc=I_dynl_tmax_min_rain.txt","w") do io
     writedlm(io,[e_pht e_max e_min e_ra])
 end
 
@@ -75,7 +75,7 @@ end
 using Gadfly
 
 #centralization -> standardized by the centered values
-Es=readdlm(string(@__DIR__,"/../test/switchgrass_fl50_centrl_36site_yr_Kc=I_dynl_tmax_min_rain.txt"))
+Es=readdlm(string("../Result/switchgrass_fl50_centrl_36site_yr_Kc=I_dynl_tmax_min_rain.txt"))
     
 #photoperiod only
 set_default_plot_size(15cm, 10cm)

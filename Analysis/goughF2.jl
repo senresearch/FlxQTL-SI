@@ -1,4 +1,4 @@
-using RCall
+using RCall, StatsBase, Statistics, DelimitedFiles, Distributed
 @everywhere using FlxQTL
 FlxQTL.setSeed(3,1000)
 ##processing data
@@ -36,7 +36,7 @@ XX=Markers(mar[:,1],mar[:,2],mar[:,3],genpr')
 #using bs= 4 df 
 @time Lod4, B4,est04=FlxQTL.geneScan(3,T,Matrix(1.0I,m,m),Λ,ones(m),Ystd,XX,Z_b4,true);
 
-open("../runtest/goughf2_lod_z(4).txt","w")do io
+open("../Result/goughf2_lod_z(4).txt","w")do io
     writedlm(io,Lod4)
 end
 
@@ -80,23 +80,23 @@ chr10=findall(X2d.chr.==10);X10=FlxQTL.Markers(mar2[chr10,1],mar2[chr10,2],mar2[
 @time l2d10,est10=FlxQTL.gene2Scan(3,T[:,:,10],Matrix(1.0I,m,m),Λ[:,10],ones(m),Ystd,X10,Z_b4);
 
 # saved in Sen's computer but also copied to /fda/analysis/result/
-open("../runtest/goughf2_2dlod_chr7.txt","w")do io
+open("../Result/goughf2_2dlod_chr7.txt","w")do io
     writedlm(io,l2d7)
 end
 
-open("../runtest/goughf2_2dlod_chr8.txt","w")do io
+open("../Result/goughf2_2dlod_chr8.txt","w")do io
     writedlm(io,l2d8)
 end
 
-open("../runtest/goughf2_2dlod_chr10.txt","w")do io
+open("../Result/goughf2_2dlod_chr10.txt","w")do io
     writedlm(io,l2d10)
 end
 
 
 ## 2d-plots for the three Chromosomes
-ch7=readdlm("goughf2_2dlod_chr7.txt");
-ch8=readdlm("goughf2_2dlod_chr8.txt");
-ch10=readdlm("goughf2_2dlod_chr10.txt");
+ch7=readdlm("../Result/goughf2_2dlod_chr7.txt");
+ch8=readdlm("../Result/goughf2_2dlod_chr8.txt");
+ch10=readdlm("../Result/goughf2_2dlod_chr10.txt");
 
 p7=layers(X7.chr,X7.pos,ch7)
 p8=layers(X8.chr,X8.pos,ch8)

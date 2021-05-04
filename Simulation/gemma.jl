@@ -276,6 +276,7 @@ open("../test/runtime-flxqtl_vs_gemma_hsmouse_chr1-3-7-11-15-19.txt","w")do io
 end
 
 --------
+#### Fig4.eps
 using Plots
 pyplot()
 using Plots.PlotMeasures

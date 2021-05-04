@@ -72,40 +72,84 @@ open("../Result/sim_Kc/agren_pwr4Sigmas.txt","w")do io
 end
 
 
-using Gadfly,Colors
+# using Gadfly,Colors
 
-set_default_plot_size(30cm, 30cm)
+# set_default_plot_size(30cm, 30cm)
 
-# power by τ^2
-layer1=Array{Array{Layer,1}}(undef,5);layer2=Array{Array{Layer,1}}(undef,5)
-# color1=distinguishable_colors(5,[RGB24(0.8,0.5,0.2)]);color2=distinguishable_colors(5,[RGB24(0.8,0.5,0.2)])
-color1=["blue","purple","green","orange","grey"];
-x=convert(Array{Float64},Btrue[1,1,:]')
-for j=1:5
-    layer1[j]=layer(x=x,y=pwr0[j,2:end],Geom.point,Geom.line,Theme(default_color=color1[j]))
-    layer2[j]=layer(x=x,y=pwr0[j+5,2:end],Geom.point,Geom.line,Theme(default_color=color1[j]))
+# # power by τ^2
+# layer1=Array{Array{Layer,1}}(undef,5);layer2=Array{Array{Layer,1}}(undef,5)
+# # color1=distinguishable_colors(5,[RGB24(0.8,0.5,0.2)]);color2=distinguishable_colors(5,[RGB24(0.8,0.5,0.2)])
+# color1=["blue","purple","green","orange","grey"];
+# x=convert(Array{Float64},Btrue[1,1,:]')
+# for j=1:5
+#     layer1[j]=layer(x=x,y=pwr0[j,2:end],Geom.point,Geom.line,Theme(default_color=color1[j]))
+#     layer2[j]=layer(x=x,y=pwr0[j+5,2:end],Geom.point,Geom.line,Theme(default_color=color1[j]))
+# end
+
+# a1=plot(layer1...,Guide.XLabel("B"),Guide.YLabel("power"),Guide.title("Power varying with B for each τ^2"),Guide.manual_color_key("τ^2",string.(τ2true)[1:5],color1));
+
+# a2=plot(layer2...,Guide.XLabel("B"),Guide.YLabel("power"),Guide.title("Power varying with B for each τ^2"),Guide.manual_color_key("τ^2",string.(τ2true)[6:end],color1));
+# vstack(a1,a2)
+
+##### # # power by τ^2
+using Plots
+#pyplot()
+using Plots.PlotMeasures
+
+
+B0=round.(Btrue[1,1,:],digits=2)[1:end-1]
+tauLab=["1/1024" "1/512" "1/256" "1/128" "1/64" "1/32" "1/16" "1/8" "1/4" "1/2"]
+myColor=[:orange :lightgreen :darkgreen :blue :purple]        
+
+p0 = plot(B0,pwr0[1,2:end-1], line= (2, :solid), 
+    xticks=B0,#guidefontsize=18,tickfontsize=8.6, legendfontsize=16,titlefontsize=20,xrotation=15,
+    xrotation=55,
+    xlab="B", ylab="Power", color=myColor[1],right_margin=1cm,grid=false,
+    #tickfontrotation=1.5,
+     label = tauLab[1],title="Power varying with B for each τ²" ,legend=:bottomright)
+scatter!(B0, pwr0[1,2:end-1],color=myColor[1],  label="",marker=3)
+
+for j in 2:5
+    plot!(B0,pwr0[j,2:end-1], color=myColor[j], line = (2, :solid), 
+          xlab="B", ylab="Power",label = tauLab[j])
+    scatter!(B0, pwr0[j,2:end-1], color=myColor[j], label="",marker=3)
 end
+p0
 
-a1=plot(layer1...,Guide.XLabel("B"),Guide.YLabel("power"),Guide.title("Power varying with B for each τ^2"),Guide.manual_color_key("τ^2",string.(τ2true)[1:5],color1));
+p1 = plot(B0,pwr0[6,2:end-1], line= (2, :solid), 
+    xticks=B0,#guidefontsize=9,tickfontsize=8.6, legendfontsize=10,titlefontsize=13,
+    xrotation=55,
+    xlab="B", ylab="Power", color=myColor[1],right_margin=1cm,grid=false,
+     label = tauLab[6] ,legend=:bottomright)
+scatter!(B0, pwr0[6,2:end-1],color=myColor[1],  label="",marker=3)
 
-a2=plot(layer2...,Guide.XLabel("B"),Guide.YLabel("power"),Guide.title("Power varying with B for each τ^2"),Guide.manual_color_key("τ^2",string.(τ2true)[6:end],color1));
-vstack(a1,a2)
+for j in 2:5
+    plot!(B0,pwr0[j+5,2:end-1], color=myColor[j], line = (2, :solid), 
+          xlab="B", ylab="Power",label = tauLab[j+5])
+    scatter!(B0, pwr0[j+5,2:end-1], color=myColor[j], label="",marker=3)
+end
+p1
 
-# power by Kc=I vs Kc!=I
+ll = @layout [ a;c]
+#plot(p0,p1,layout=ll)
+savefig(plot(p0,p1,layout=ll),"~/GIT/manscripts/gxe/fig/Fig3.eps")
 
+
+### power by Kc=I vs Kc!=I (Fig_S1.png)
+using Gadfly,Colors
 Plots=Array{Plot,1}(undef,length(τ2true));ticks = [0.0,0.2, 0.4, 0.6,0.8,1.0]
 for j=1:length(τ2true)
     Plots[j] =plot(layer(x=pwr1[j,2:6], y=pwr1[j,7:end],Geom.point,Geom.line,Geom.abline(color="red", style=:dash),
                 Theme(default_color=colorant"blue")),Guide.XLabel("power (Kc(≠I))"),Guide.YLabel("power (Kc=I)",orientation=:vertical)
       ,Guide.yticks(ticks=ticks),Guide.xticks(ticks=ticks)
-        ,Guide.title("Power varied by B for τ^2=$(τ2true[j])"));
+        ,Guide.title("Power varied by B for τ²= "*tauLab[j]));
     
 end
 
 set_default_plot_size(25cm, 30cm)
 display(gridstack([Plots[1] Plots[2] ;Plots[3] Plots[4];Plots[5] Plots[6];Plots[7] Plots[8];Plots[9] Plots[10]]))
 
-#power by Sigmas
+#power by Sigmas (Fig_S2.png)
 pwr2=readdlm("../Result/sim_Kc/agren_pwr4Sigmas.txt")
 
 layers1=Array{Array{Layer,1}}(undef,4);
@@ -117,7 +161,7 @@ end
 set_default_plot_size(13cm, 13cm)
 Gadfly.plot(layers1...,Guide.XLabel("power for Kc(≠I)"),Guide.YLabel("power for Kc=I")
       ,Guide.yticks(ticks=ticks),Guide.xticks(ticks=ticks)
-        ,Guide.title("Power varied by τ^2 for B=$(Bt)"),Guide.manual_color_key("Σ",["1","2","3","I"],colors1))
+        ,Guide.title("Power varied by τ² for B=[√2 -√2; √2 √2])"),Guide.manual_color_key("Σ",["1","2","3","I"],colors1))
 
 
 #Σ

@@ -38,7 +38,7 @@ end
 # cutoff # 4.85103  5.50824
 
 
-#plot for 1d scan
+#plot for 1d scan: Fig6.eps
 fl50=readdlm("../Result/switchgrass_fl50_36site_yr_Z=Kc=I-Kc=photo_Gauss-colcent-overstd.txt")
 
 fl=layers(marker[:,2],marker[:,3],fl50[:,[1]])
@@ -71,18 +71,40 @@ open("../Result/switchgrass_fl50_centrl_36site_yr_Kc=I_dynl_tmax_min_rain.txt","
     writedlm(io,[e_pht e_max e_min e_ra])
 end
 
+using Plots
+pyplot()
+using Plots.PlotMeasures
 
-using Gadfly
+x=collect(1:1:12)
+myColor=["green" "orange" "blue"]
 
-#centralization -> standardized by the centered values
-Es=readdlm(string("../Result/switchgrass_fl50_centrl_36site_yr_Kc=I_dynl_tmax_min_rain.txt"))
+p0 = plot(x,Es[:,1], line= (3, :solid), 
+    xticks=x,guidefontsize=18,tickfontsize=14, legendfontsize=16,titlefontsize=20,
+    xlab="Month", ylab="LOD", color=myColor[1],right_margin=1cm,grid=false,
+    #tickfontrotation=1.5,
+     label = "Chr$(marker[Q[1],2])@$(round(marker[Q[1],3],digits=3))",title="Switchgrass FL50: monthly photoperiod",legend=:right )
+scatter!(x, Es[:,1],color=myColor[1],  label="",marker=6)
+for j=2:3
+plot!(x,Es[:,j], color=myColor[j], line = (3, :solid),label = 
+        "Chr$(marker[Q[j],2])@$(round(marker[Q[j],3],digits=3))")
+scatter!(x, Es[:,j], color=myColor[j], label="",marker=6)
+end
+
+p0
+savefig(p0,"~/GIT/manscripts/gxe/fig/Fig7.eps")
+
+# using Gadfly
+
+# #centralization -> standardized by the centered values
+# Es=readdlm("../Result/switchgrass_fl50_centrl_36site_yr_Kc=I_dynl_tmax_min_rain.txt")
     
-#photoperiod only
-set_default_plot_size(15cm, 10cm)
+# #photoperiod only
+# set_default_plot_size(15cm, 10cm)
 
-p=Gadfly.plot(layer(y=Es[:,1],Geom.point,Geom.line,Theme(default_color=color("blue"))),layer(y=Es[:,2],Geom.point,Geom.line,Theme(default_color=color("orange"))),layer(y=Es[:,3],Geom.point,Geom.line,Theme(default_color=color("purple"))),Guide.manual_color_key("Legend",["Chr$(marker[Q[1],2])@$(marker[Q[1],3])","Chr$(marker[Q[2],2])@$(marker[Q[2],3])","Chr$(marker[Q[3],2])@$(marker[Q[3],3])" ], ["blue","orange","purple" ]),
-  Guide.title("Switchgrass FL50: Montly Photoperiod"),
-    Guide.YLabel("LOD",orientation=:vertical),Guide.XLabel("Month"),Coord.cartesian(xmin=0, xmax=12))
+# p=Gadfly.plot(layer(y=Es[:,1],Geom.point,Geom.line,Theme(default_color=color("blue"))),layer(y=Es[:,2],Geom.point,Geom.line,Theme(default_color=color("orange"))),layer(y=Es[:,3],Geom.point,Geom.line,Theme(default_color=color("purple"))),Guide.manual_color_key("Legend",["Chr$(marker[Q[1],2])@$(round(marker[Q[1],3],digits=3))","Chr$(marker[Q[2],2])@$(round(marker[Q[2],3],digits=3))","Chr$(marker[Q[3],2])@$(round(marker[Q[3],3],digits=3))" ], ["blue","orange","purple" ]),
+#   Guide.title("Switchgrass FL50: Montly Photoperiod"),
+#     Guide.YLabel("LOD",orientation=:vertical),Guide.XLabel("Month"),Coord.cartesian(xmin=0, xmax=12))
 
-p |> PNG(homedir()*"/GIT/manscripts/gxe/fig/sw-fl50-environscan.png", 30cm, 18cm)
+# # p |> PNG(homedir()*"/GIT/manscripts/gxe/fig/sw-fl50-environscan.png", 30cm, 18cm)
+
 

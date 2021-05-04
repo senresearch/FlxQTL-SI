@@ -45,8 +45,9 @@ K1=kinshipLin(XX.X,3);
 @time maxLODs,H1par_perm,cutoff=FlxQTL.permTest(1000,3,K1,Matrix(1.0I,m,m),Ystd,XX,Z_b4);
 # writedlm("~/fda/analysis/result/maxlod_bs4_gouf2.txt",maxLODs)
 
-## 1-d plot
-p=layers(XX.chr,XX.pos,Lod4[:,:])
+## 1-d plot : Fig8.eps
+# Lod4=readdlm("../Result/goughf2_lod_z(4).txt")
+p=layers(mar[:,2],mar[:,3],Lod4)
 plot1d(p;title="goughF2 with α=0.1,0.05",yint=[6.3869,7.7035])
 
 
@@ -93,7 +94,7 @@ open("../Result/goughf2_2dlod_chr10.txt","w")do io
 end
 
 
-## 2d-plots for the three Chromosomes
+## 2d-plots for the three Chromosomes: Fig9 (three plots)
 ch7=readdlm("../Result/goughf2_2dlod_chr7.txt");
 ch8=readdlm("../Result/goughf2_2dlod_chr8.txt");
 ch10=readdlm("../Result/goughf2_2dlod_chr10.txt");
@@ -141,6 +142,7 @@ for k=1:length(maxidx)
  ww[:,k]=  mean(wght[gene[:,maxidx[k]].==3.0,:],dims=1)' 
 end
 
+## Fig_S11 ~ Fig_S13
 #generate effect plots from raw data
 Plots=Array{Plot,1}(undef,length(maxidx));ticks=[Float64(k) for k=1:16]
 for j=1:length(maxidx)

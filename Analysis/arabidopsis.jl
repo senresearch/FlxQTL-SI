@@ -1,12 +1,12 @@
 using DelimitedFiles, StatsBase, Statistics, LinearAlgebra, Distributed
-using RCall
-using Gadfly
+
+
 
 @everywhere using FlxQTL
 FlxQTL.setSeed(10,200)
 
 ## read imputed genotype data: a(=1):italian parent, b(=2)swedish parent
-impgen = readdlm("processedData/fullrank_imput.csv",',';skipstart=1);
+impgen = readdlm("../processedData/fullrank_imput.csv",',';skipstart=1);
 impgen[impgen.==1.0].=0.0;impgen[impgen.==2.0].=1.0;
 impgen1=copy(impgen);
 impgen1[impgen1.==0.0].=-1.0;
@@ -155,42 +155,52 @@ for i=1:699
 end
 
 ####### Effects plots
+#using Gadfly
 include("effectplot.jl")
 
+#Fig_S9.png (main), Fig_S10.png (interaction)
 pmain_perm=Mlayers(XX.chr,XX.pos,hcat(main[:,1],perm_eff[:,1:2]))
 pint_perm=Mlayers(XX.chr,XX.pos,hcat(inter[:,1],perm_eff[:,3:4]))
 
-effectplot(pmain_perm,true;title="Main effect with 95% band", ylabel="effect size")
-effectplot(pint_perm,true;title="Interaction effect with 95% band", ylabel="effect size")
+effectplot(pmain_perm,true;title="Main effect with 95% band", ylabel="effect size") 
+effectplot(pint_perm,true;title="Interaction effect with 95% band", ylabel="effect size") 
 
-peff=Mlayers(XX.chr,XX.pos,hcat(main[:,1],inter[:,1]))
-effect2plot(peff;title="Effect Plots",ylabel="Effect size",legend=["Main","Interaction"])
+# peff=Mlayers(XX.chr,XX.pos,hcat(main[:,1],inter[:,1]))
+# effect2plot(peff;title="Effect Plots",ylabel="Effect size",legend=["Main","Interaction"])
+
+### Fig5.eps
+effects=readdlm("../Result/agren_effects_main_inter_comparison.txt")
+pe=layers(labels[:,2],labels[:,end],effects[:,[1,4]])
+plot1d(pe;title="Effect plots (Kc=I)",ylabel="Effects size" ,Legend=["Main", "Interaction"],loc="upper left")
 
 #############
 ## 1d plot
 lod1=readdlm("../Result/agren_1dlod_soil_air_drgt_avg_i.txt")
-
+# Fig_S4.eps
 p0=layers(labels[:,2],labels[:,end],lod1)
 plot1d(p0;title= "LOD scores by different Kc's ",Legend=["Kc=soil daily range temperature","Kc=air daily range temperature","Kc=weekly drought index", "Kc=Avg(soil,air,drought)","Kc=I"])
 
 # p1=layers(labels[:,2],labels[:,end],lod1[:,[1,end]])
 # plot1d(p1;title= "LOD scores with 95% cutoffs",yint=[4.05876 4.17416],yint_color=["red","blue"],Legend=["Kc=soil daily range temperature with blue cuttoff ","Kc=I with red cutoff"])
 
+# Fig_S6.eps
 lod11=readdlm("../Result/agren_sitewise_multi_1dlod_it_soil&i_sw.txt")
 p11=layers(labels[:,2],labels[:,end],lod11[:,[2,4]])
 plot1d(p11;title="LODs by sitewise multivariate genome scan (Kc=I)",Legend=["Italy for 3-year fitness","Sweden for 3-year fitness"])
 
+# Fig_S7.eps (Italy), Fig_S8.eps (Sweden)
 lod=readdlm("../Result/agren_univariate_1dlod_it_sw.txt")
 pt=layers(labels[:,2],labels[:,end],lod[:,1:3]);pw=layers(labels[:,2],labels[:,end],lod[:,4:end])
 plot1d(pt;title="LODs by sitewise univariate genome scan (Italy)",Legend=["Italy 2009","Italy 2010","Italy 2011"])
 plot1d(pw;title="LODs by sitewise univariate genome scan (Sweden)",Legend=["Sweden 2009","Sweden 2010","Sweden 2011"],loc="upper left")
 
-pi=layers(labels[:,2],labels[:,end],hcat(lod[:,1:3],lod11[:,2]));ps=layers(labels[:,2],labels[:,end],hcat(lod[:,4:end],lod11[:,4]))
-plot1d(pi;title="Italy : LODs by sitewise-multivariate & univariate genome scan",Legend=["Italy 2009","Italy 2010","Italy 2011","Italy (3 years) by Kc=I"])
-plot1d(ps;title="Sweden : LODs by sitewise-multivariate & univariate genome scan",Legend=["Sweden 2009","Sweden 2010","Sweden 2011","Sweden (3 years) by Kc=I"],loc="upper left")
+
+# pi=layers(labels[:,2],labels[:,end],hcat(lod[:,1:3],lod11[:,2]));ps=layers(labels[:,2],labels[:,end],hcat(lod[:,4:end],lod11[:,4]))
+# plot1d(pi;title="Italy : LODs by sitewise-multivariate & univariate genome scan",Legend=["Italy 2009","Italy 2010","Italy 2011","Italy (3 years) by Kc=I"])
+# plot1d(ps;title="Sweden : LODs by sitewise-multivariate & univariate genome scan",Legend=["Sweden 2009","Sweden 2010","Sweden 2011","Sweden (3 years) by Kc=I"],loc="upper left")
 
 
-## 2d plot
+## 2d plot : Fig_S5
 lod2=readdlm("../Result/agren_2dlod_soil.txt")
 p2=layers(labels1[:,2],labels1[:,end],lod2)
 plot2d(p2)

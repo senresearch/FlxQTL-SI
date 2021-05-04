@@ -33,18 +33,60 @@ z0=readdlm("../Result/sim_Z/agrenZ_pwr_τ2true$(τ2true[3])_Σa$(a)_b$(b).txt")[
 z1=readdlm("../Result/sim_Z/agrenZi_pwr_τ2true$(τ2true[3])_Σa$(a)_b$(b).txt")[:,2]
 Z[3,2:9]=[z0;z1]
 
-using Gadfly, Plots
+
+using Plots
+pyplot()
+using Plots.PlotMeasures
+
+x=round.(Bfix[2,1,:],digits=2)
+myColor=["green" "orange" "blue"]
+
+p0 = plot(x,Z[2,2:5], line= (3, :solid), 
+    xticks=x,guidefontsize=18,tickfontsize=14, legendfontsize=16,titlefontsize=20,
+    xlab="B", ylab="Power", color=myColor[1],right_margin=1cm,grid=false,
+    #tickfontrotation=1.5,
+     label = "FlxQTL (Z≠I)",title="Power varying with B for τ²= 1/512" ,legend=:bottomright)
+scatter!(x, Z[2,2:5],color=myColor[1],  label="",marker=6)
+
+plot!(x,Z[2,6:9], color=myColor[2], line = (3, :solid),label = "FlxQTL (Z=I)")
+scatter!(x, Z[2,6:9], color=myColor[2], label="",marker=6)
+plot!(x,Z[2,10:end], color=myColor[3], line = (3, :solid),label = "MLMM")
+scatter!(x, Z[2,10:end], color=myColor[3], label="",marker=6)
+
+
+
+p1 = plot(x,Z[5,2:5], line= (3, :solid), 
+    xticks=x,guidefontsize=18,tickfontsize=14, legendfontsize=16,titlefontsize=20,
+    xlab="B", ylab="Power", color=myColor[1],right_margin=1cm,grid=false,
+    #tickfontrotation=1.5,
+     label = "FlxQTL (Z≠I)",title="Power varying with B for τ²= 1/64" ,legend=:bottomright)
+scatter!(x, Z[5,2:5],color=myColor[1],  label="",marker=6)
+
+plot!(x,Z[5,6:9], color=myColor[2], line = (3, :solid),label = "FlxQTL (Z=I)")
+scatter!(x, Z[5,6:9], color=myColor[2], label="",marker=6)
+plot!(x,Z[5,10:end], color=myColor[3], line = (3, :solid),label = "MLMM")
+scatter!(x, Z[5,10:end], color=myColor[3], label="",marker=6)
+
+ll = @layout [ a;c]
+savefig(plot(p0,p1,layout=ll),"~/GIT/manscripts/gxe/fig/Fig2.eps")
+
+
+
+
+#### Fig_S2
+using Gadfly
 
 #generate effect plots from raw data
 set_default_plot_size(25cm, 15cm)
 
+tauLab=["1/1024" "1/512" "1/256" "1/128" "1/64" "1/32" "1/16" "1/8" "1/4" "1/2"]
 Plots=Array{Plot,1}(undef,length(τ2true));
 for j=1:length(τ2true)
     Plots[j] =Gadfly.plot(layer(x=[1.0 1.41421 2.0 2.82843], y=Z[j,2:5],Geom.point,Geom.line,
-                Theme(default_color=colorant"purple")),
+                Theme(default_color=colorant"green")),
         layer(x=[1.0 1.41421 2.0 2.82843],y=Z[j,6:9],Theme(default_color=colorant"orange"), Geom.point,Geom.line),layer(x=[1.0 1.41421 2.0 2.82843],y=Z[j,10:end],
            Theme(default_color=colorant"blue"),Geom.point,Geom.line),Guide.XLabel("B"),Guide.YLabel("power")
-        ,Guide.manual_color_key("τ^2=$(τ2true[j])",["Z(≠I): contrasts","Z=I","MLMM" ], ["purple","orange","blue"]) );
+        ,Guide.manual_color_key("τ²= "*tauLab[j],["FlxQTL (Z≠I)","FlxQTL (Z=I)","MLMM" ], ["green","orange","blue"]) );
     
 end
 

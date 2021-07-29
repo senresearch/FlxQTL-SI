@@ -10,7 +10,7 @@ using Distributed, Statistics, StatsBase, DelimitedFiles, LinearAlgebra
 @time phen=readdlm("../testdata/mouse_hs1940_imp_pheno.txt");
 
 ######  computation time comparison by increasing genotype & trait data size
-#sort genotype by chr 
+#sort genotype by chr
 
 ch1=findall(anno[:,3].==1); #1044
 ch2=findall(anno[:,3].==2); #948
@@ -32,14 +32,14 @@ ch17=findall(anno[:,3].==17);#535
 ch18=findall(anno[:,3].==18);#456
 ch19=findall(anno[:,3].==19);#302
 
-#write files for accumulated chr's 
+#write files for accumulated chr's
 open("../testdata/mouse_hs1940_genochr18.txt","w") do io
     writedlm(io, gen[[ch1;ch2;ch3;ch4;ch5;ch6;ch7;ch8;ch9;ch10;ch11;ch12;ch13;ch14;ch15;ch16;ch17;ch18],:])
 end
 
 
 #simulated phenotype data
-n,s=size(phen)
+n,m=size(phen)
 indx=zeros(Int64,n,3)
 for j=1:3
  indx[:,j]=shuffle(1:n)
@@ -47,7 +47,7 @@ end
 
 Y6=[phen phen[indx[:,1],:]]; rank(Y6)
 Y9= [Y6 phen[indx[:,2],:]]; rank(Y9)
-Y12=[Y9 phen[indx[:,3],:]]; rank(Y12)    
+Y12=[Y9 phen[indx[:,3],:]]; rank(Y12)
 
 open("../testdata/mouse_hs1940_simulated6traits.txt","w")do io
         writedlm(io, Y6)
@@ -59,7 +59,7 @@ end
 open("../testdata/mouse_hs1940_simulated12traits.txt","w")do io
         writedlm(io, Y12)
 end
-        
+
 
 
 
@@ -104,7 +104,7 @@ X17=FlxQTL.Markers(anno[rmid17,1],anno[rmid17,3],anno[rmid17,4],gen17[rmid17,:])
 X18=FlxQTL.Markers(anno[rmid18,1],anno[rmid18,3],anno[rmid18,4],gen18[rmid18,:])
 
 @time rmid=FlxQTL.getGenoidx(gen[:,4:end] ,0.01); #10783
-X19=FlxQTL.Markers(anno[rmid,1],anno[rmid,3],anno[rmid,4],gen[rmid,4:end]) 
+X19=FlxQTL.Markers(anno[rmid,1],anno[rmid,3],anno[rmid,4],gen[rmid,4:end])
 
 Y=convert(Array{Float64,2},phen');
 # m,n=size(Y)
@@ -127,7 +127,7 @@ time gemma.3 -g ../testdata/mouse_hs1940.geno.txt.gz -p ../testdata/mouse_hs1940
 # all but chr1
 function runTime(m,Y)
     flxT=zeros(5,64);
-   
+
     for j=1:64
 flxT[1,j] = @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X3);
 flxT[2,j] = @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X7);
@@ -136,7 +136,7 @@ flxT[4,j] = @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m)
 flxT[5,j] = @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X19);
     end
     return flxT
-    end    
+    end
 
 
  mtim0= runTime(3,Y);
@@ -148,7 +148,7 @@ flxT[5,j] = @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m)
 for j=1:3
     Y=readdlm("../testdata/mouse_hs1940_simulated$(3j+3)traits.txt")
         Y=convert(Array{Float64,2},Y');  m=size(Y,1)
-        mtime=runTime(m,Y) 
+        mtime=runTime(m,Y)
     open("mouse_hs1940_runtime4chr_$(m)traits.txt","w")do io
         writedlm(io,mtime)
         end
@@ -156,23 +156,23 @@ for j=1:3
 end
 
 
-#Chr1 only 
+#Chr1 only
 function fqtl_time(m,Y)
     fqtl=zeros(64);
     for j=1:64
-    fqtl[j]= @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X1); 
+    fqtl[j]= @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X1);
     end
     return fqtl
 end
 
 
-   f= open("mouse_hs1940_chr1runtime_6_9_12traits.txt","w")  
+   f= open("mouse_hs1940_chr1runtime_6_9_12traits.txt","w")
 for j=1:3
     Y=readdlm("../testdata/mouse_hs1940_simulated$(3j+3)traits.txt")
         Y=convert(Array{Float64,2},Y');  m=size(Y,1)
         mtime=fqtl_time(m,Y)
         display([m median(mtime)])
-       f= open("mouse_hs1940_chr1runtime_6_9_12traits.txt","a")    
+       f= open("mouse_hs1940_chr1runtime_6_9_12traits.txt","a")
         writedlm(f,mtime')
         close(f)
 end
@@ -180,11 +180,11 @@ end
 
 #concatenating outputs for file update
 chr1=readdlm(homedir()*"/Mountpt/analysis/mouse_hs1940_chr1runtime_6_9_12traits.txt")
-    
+
  idx=[1;3; 7; 11; 15; 19]
 fq3=readdlm(homedir()*"/Mountpt/analysis/mouse_hs1940_runtime4chr_3traits.txt")
 flx3=[3;median(fq3,dims=2)[idx,1].+2.15 ]
- 
+
 fq6=readdlm(homedir()*"/Mountpt/analysis/mouse_hs1940_runtime4chr_6traits.txt")
 open("../test/mouse_hs1940_runtime4chr1-3-7-11-15-19_6traits.txt","w")do io
     writedlm(io,[chr1[[1],:];fq6])
@@ -223,47 +223,47 @@ gem6=[46.096; 52.095; 56.170; 61.541; #1m1.541
 120.114;#2m0.114s
 155.079; #2m35.079s
 156.540; #2m36.540s
-158.784; #2m38.784s       
+158.784; #2m38.784s
 ]
-gem9=[119.616;#1m59.616s 
+gem9=[119.616;#1m59.616s
 132.672;#2m12.672s
 142.125;#2m22.125s
 165.681;#2m45.681s
 175.495;#2m55.495s
-188.866;#3m8.866s    
+188.866;#3m8.866s
 199.973;#3m19.973s
-213.962;#3m33.962s    
-223.197; #3m43.197s   
-228.511;  #3m48.511s  
-238.906;#3m58.906s    
+213.962;#3m33.962s
+223.197; #3m43.197s
+228.511;  #3m48.511s
+238.906;#3m58.906s
 246.001;#4m6.001s
-254.428;#4m14.428s    
-269.421;#4m49.421s    
-293.310;#4m53.310s   
-299.213;#4m59.213s 
-313.118;#5m13.118s    
-316.418;#5m16.418s √ 
-320.700 #5m20.700s  √        
+254.428;#4m14.428s
+269.421;#4m49.421s
+293.310;#4m53.310s
+299.213;#4m59.213s
+313.118;#5m13.118s
+316.418;#5m16.418s √
+320.700 #5m20.700s  √
  ]
 #gemma 12 traits 1-5 accumulated chr's
 gem12=  [
- 489.096;#8m9.096s     	
+ 489.096;#8m9.096s
  531.305;#8m51.305s
  558.899;#9m18.899s
  601.354;#10m1.354s
  625.388;#10m25.388s
  681.019; #11m21.019s
  854.534;#14m14.534s
- 895.733; #14m55.733s   
- 926.200;#15m26.200s   
- 943.350;#15m43.350s   
+ 895.733; #14m55.733s
+ 926.200;#15m26.200s
+ 943.350;#15m43.350s
  986.028;#16m26.028s
- 1007.041;#16m47.041s   
- 1030.773;#17m10.773s   
- 1050.310; #17m30.310s  √  
+ 1007.041;#16m47.041s
+ 1030.773;#17m10.773s
+ 1050.310; #17m30.310s  √
  1089.820; #18m9.820s   √
- 1104.356;#18m24.356s   
-1134.021; #18m54.021s √  
+ 1104.356;#18m24.356s
+1134.021; #18m54.021s √
 1154.673;#19m14.673s √
 1186.045;#19m46.045s √
 ]
@@ -310,22 +310,22 @@ hline!([-log10(0.05/10783)],line=(3,:dash,:grey),label=false)
 annotate!((10000,-log10(0.05/length(gem0[1][:,end]))+0.2 , Plots.text("α=0.05", 20, :grey, :right)))
 
 #run time comparison
- idx=[1;3; 7; 11; 15; 19]; 
+ idx=[1;3; 7; 11; 15; 19];
 ptime=readdlm("../Result/runtime-flxqtl_vs_gemma_hsmouse_chr1-3-7-11-15-19.txt")
 
 legendLabel =["FlxQTL 3 traits" "  6 traits" "  9 traits" "  12 traits" "GEMMA 3 traits" "  6 traits" "  9 traits" " 12 traits"]
-markerLabel = [:rect :diamond :dot :X :rect :diamond :dot :X] 
+markerLabel = [:rect :diamond :dot :X :rect :diamond :dot :X]
 myLineStlye = [:dash :solid :dot :dashdot :dash :solid :dot :dashdot]
 myColor = [RGB(0,155/255,250/255) RGB(227/255,111/255,71/225) ]
 
-p3 = plot(idx, log2.(ptime[2:end,1]), color=myColor[Int(1>4)+1], line= (3, myLineStlye[1]), 
+p3 = plot(idx, log2.(ptime[2:end,1]), color=myColor[Int(1>4)+1], line= (3, myLineStlye[1]),
     xticks=idx,yticks=collect(3:2:10),
     xlab="Cumulative chromosomes", ylab="log2(Time (sec))",guidefontsize=25,tickfontsize=20, legendfontsize=20,
     grid=false, label = legendLabel[1], left_margin=-2mm,right_margin=2.5mm,legend=:bottomright)
 scatter!(idx, log2.(ptime[2:end,1]),color=myColor[Int(1>4)+1],  label="",marker=6)
 
-for i in 2:8 
-    plot!(idx, log2.(ptime[2:end,i]), color=myColor[Int(i>4)+1], line = (3, myLineStlye[i]), 
+for i in 2:8
+    plot!(idx, log2.(ptime[2:end,i]), color=myColor[Int(i>4)+1], line = (3, myLineStlye[i]),
           xlab="Cumulative chromosomes", ylab="log2(Time (sec))",
           grid=false, label = legendLabel[i])
     scatter!(idx, log2.(ptime[2:end,i]), color=myColor[Int(i>4)+1], label="",marker=6)
@@ -335,4 +335,3 @@ p3
 ll = @layout [ a{1.1h} b;
               c]
 plot(p3,p1,p2,layout=ll)
-

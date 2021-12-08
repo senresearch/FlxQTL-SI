@@ -89,7 +89,7 @@ end
 # cr : Int64, cross (1 for genotypes, >1 type of crosses)
 # X_sml : # of small effect qtl
 # X_lrg : # of large effct qtl
-#q= size(Z,2)
+#q= size(Z,2): mxq
 # bs : a vector for sampling B
 function Bgenerator(cr::Int64,X_lrg::Int64,q::Int64,bs::Array{Float64,1})
     
@@ -100,12 +100,15 @@ function Bgenerator(cr::Int64,X_lrg::Int64,q::Int64,bs::Array{Float64,1})
     end
         
      Bfix=zeros(q,p,X_lrg)
+     B=reshape(sample(bs,p*q),q,:)
+    display(B) # to check the Bfix
      for i=1:X_lrg
-            Bfix[:,:,i]=reshape(sample(bs,p*q),q,:)#./sqrt(2)^(i-1)
+            Bfix[:,:,i]=B.^(X_lrg-i)
     end
         return Bfix
     
 end
+
 
 # a random generator  of qtl large effect indices
 function Lqtl_index(X_lrg::Int64,p::Int64)
@@ -113,7 +116,10 @@ function Lqtl_index(X_lrg::Int64,p::Int64)
     Lqidx=sample(1:p,X_lrg;replace=false);sort!(Lqidx)   
         return Lqidx
 end
-    
+
+
+# generative Y
+
 # w : # of weather covariates
 # markers :standardized for genotypes only / Z: normalized
 # Climate: a climate matrix (or data)
@@ -189,6 +195,77 @@ e=MvNormal(kron(Matrix(1.0I,n,n),Σtrue));
  return  Ysim0, Ysim1
    
 end
+    
+
+
+#direct sampling Y w/o Y
+    
+function Ygen(itr,τ2true::Float64,Σtrue::Array{Float64,2},Bfix::Array{Float64,3},cr,X_lrg::Int64,Kg,Kc,XX::FlxQTL.Markers)
+        
+n=size(XX.X,2);m=size(Kc,1);
+p=Int(size(XX.X,1)/cr);
+ Chr0=unique(XX.chr);
+
+# generating fixed terms
+     #get large qtl indices   
+        Chr=sample(Chr0,X_lrg;replace=false);sort!(Chr)
+        println("large qtl are assinged to $(Chr).")
+        Qidx=[]
+        for j=1:X_lrg
+            maridx=findall(XX.chr.==Chr[j])
+            qidx=sample(maridx,1)
+            Qidx=[Qidx;qidx]
+        end
+         println("Large effect QTL indices are $(Qidx).")   
+        
+  Yfix=zeros(m,n,X_lrg)
+    if(cr!=1) # genotype probability
+        X=FlxQTL.mat2array(XX.X,cr)
+            for j=1:X_lrg
+                Yfix[:,:,j]=(Bfix[:,:,j])*X[Qidx[j],:,:]
+            end
+        else # genotypes
+        XL=XX.X[Qidx,:]
+                
+#         if(X_lrg==1)
+#             Xstd=(XL.-mean(XL))./std(XL)
+#         else
+#             Xstd=(XL.-mean(XL,dims=2))./std(XL,dims=2)
+#         end
+            for j=1:X_lrg
+              
+              Yfix[:,:,j]=(Bfix[:,:,j])*vcat(ones(1,n),XL[[j],:])
+            end
+    end
+        Y=sum(Yfix,dims=3)[:,:,1]; # Y=(Y.-mean(Y,dims=2))./std(Y,dims=2)
+
+#direct random terms sampling
+b=MvNormal(kron(Kg,τ2true*Kc));       
+e=MvNormal(kron(Matrix(1.0I,n,n),Σtrue));
+#####
+    
+      Y_sim= @distributed (hcat) for i=1:itr
+         Yrand=reshape(rand(b),m,:)/sqrt(m*n)
+         E=reshape(rand(e),m,:)/sqrt(m*n)
+       ##generate a phenotype matrix
+#          Y0=(Yrand.-mean(Yrand,dims=2))./std(Yrand,dims=2)+(E.-mean(E,dims=2))./std(E,dims=2)
+          Y0= Yrand+E
+          Y1=Y+Y0
+          
+                        
+          [(Y0.-mean(Y0,dims=2))./std(Y0,dims=2);(Y1.-mean(Y1,dims=2))./std(Y1,dims=2)]
+                          end                                                 
+
+     Ysim0=Y_sim[1:m,:]  # H0
+    Ysim1=Y_sim[m+1:end,:] # H1
+   
+ return Qidx, Ysim0, Ysim1
+   
+        
+end
+    
+    
+    
 
 function simulation(itr,cr,Lqidx,Y_sim0,Y_sim1,Tg,Tc,λg,λc,markers,Z;ρ=0.001,itol=1e-4,tol=1e-4)
     est=[];q=size(Z,2); p,n=size(markers.X); X_lrg=length(Lqidx)

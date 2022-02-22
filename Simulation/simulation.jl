@@ -100,10 +100,11 @@ function Bgenerator(cr::Int64,X_lrg::Int64,q::Int64,bs::Array{Float64,1})
     end
         
      Bfix=zeros(q,p,X_lrg)
-     B=reshape(sample(bs,p*q),q,:)
+     B=reshape(sample(bs,(p-1)*q),q,:)
     display(B) # to check the Bfix
      for i=1:X_lrg
-            Bfix[:,:,i]=B.^(X_lrg-i)
+#             Bfix[:,:,i]= hcat(zeros(q),B.^(X_lrg-i))
+             Bfix[:,:,i]= hcat(zeros(q),B.^i)
     end
         return Bfix
     
@@ -237,7 +238,7 @@ p=Int(size(XX.X,1)/cr);
               Yfix[:,:,j]=(Bfix[:,:,j])*vcat(ones(1,n),XL[[j],:])
             end
     end
-        Y=sum(Yfix,dims=3)[:,:,1]; # Y=(Y.-mean(Y,dims=2))./std(Y,dims=2)
+        Y=sum(Yfix,dims=3)[:,:,1];  #Y=(Y.-mean(Y,dims=2))./std(Y,dims=2)
 
 #direct random terms sampling
 b=MvNormal(kron(Kg,τ2true*Kc));       
@@ -251,9 +252,8 @@ e=MvNormal(kron(Matrix(1.0I,n,n),Σtrue));
 #          Y0=(Yrand.-mean(Yrand,dims=2))./std(Yrand,dims=2)+(E.-mean(E,dims=2))./std(E,dims=2)
           Y0= Yrand+E
           Y1=Y+Y0
-          
-                        
-          [(Y0.-mean(Y0,dims=2))./std(Y0,dims=2);(Y1.-mean(Y1,dims=2))./std(Y1,dims=2)]
+              
+          [Y0;Y1]
                           end                                                 
 
      Ysim0=Y_sim[1:m,:]  # H0

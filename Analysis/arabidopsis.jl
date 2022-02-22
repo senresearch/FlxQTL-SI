@@ -3,7 +3,7 @@ using DelimitedFiles, StatsBase, Statistics, LinearAlgebra, Distributed
 
 
 @everywhere using FlxQTL
-FlxQTL.setSeed(10,200)
+FlxQTL.setSeed(123)
 
 ## read imputed genotype data: a(=1):italian parent, b(=2)swedish parent
 impgen = readdlm("../processedData/fullrank_imput.csv",',';skipstart=1);

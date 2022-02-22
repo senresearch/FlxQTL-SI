@@ -1,6 +1,6 @@
 using RCall, StatsBase, Statistics, DelimitedFiles, Distributed
 @everywhere using FlxQTL
-FlxQTL.setSeed(3,1000)
+FlxQTL.setSeed(123)
 ##processing data
 phen=readdlm("../processedData/goughF2_sex_imp_16weight.csv",',';skipstart=1)
 ## get marker info excluding X

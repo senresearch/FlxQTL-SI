@@ -1,6 +1,6 @@
 using DelimitedFiles, StatsBase, Statistics, LinearAlgebra, Distributed
 @everywhere using FlxQTL
-FlxQTL.setSeed(3,1000)
+FlxQTL.setSeed(123)
 
 #geno prob & trait data
 @time geno=readdlm("../processedData/switchgrass36site_yr_geno_prob_imputed.csv",',';skipstart=1);

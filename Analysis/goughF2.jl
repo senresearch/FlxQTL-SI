@@ -1,6 +1,6 @@
-using RCall, StatsBase, Statistics, DelimitedFiles, Distributed
+using RCall, StatsBase, Statistics, DelimitedFiles, Distributed,LinearAlgebra
 @everywhere using FlxQTL
-FlxQTL.setSeed(123)
+setSeed(123)
 ##processing data
 phen=readdlm("../processedData/goughF2_sex_imp_16weight.csv",',';skipstart=1)
 ## get marker info excluding X
@@ -30,7 +30,7 @@ m,n=size(Ystd)
 XX=Markers(mar[:,1],mar[:,2],mar[:,3],genpr')
 
 #kinship
-@time K=FlxQTL.kinshipLoco(kinshipLin,3,XX);
+@time K=FlxQTL.kinshipLoco(kinshipLin,XX,3);
 @time T, Λ=FlxQTL.K2eig(K,true);
 
 #using bs= 4 df 

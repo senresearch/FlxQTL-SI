@@ -11,7 +11,7 @@ using Distributed, StatsBase, Statistics, Distributions, DelimitedFiles, LinearA
 @everywhere using FlxQTL
 @everywhere include("simulation.jl")
 
-@time FlxQTL.setSeed(3,1000);
+@time FlxQTL.setSeed(123);
 
 ## read imputed genotype data: a(=1):italian parent, b(=2)swedish parent
 impgen = readdlm("../processedData/fullrank_imput.csv",',';skipstart=1);

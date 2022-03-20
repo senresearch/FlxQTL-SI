@@ -7,7 +7,7 @@ FlxQTL.setSeed(123)
 marker=readdlm("../processedData/switchgrass36site_yr_markers.csv",',';skipstart=1); #6118 markers x 4 genotype prob
 XX=FlxQTL.Markers(marker[:,1],marker[:,2],marker[:,3],geno')
 
-pheno=readdlm("../36_site_yr_fl50/FL50_36_Site_Yr.csv",',';skipstart=1)[:,2:end];
+pheno=readdlm("../processedData/FL50_36_Site_Yr.csv",',';skipstart=1)[:,2:end];
 Y3=pheno.-mean(pheno,dims=1)
 Y3=convert(Array{Float64,2},(Y3./std(Y3))')
 
@@ -20,7 +20,7 @@ Z_pht=(photo.-mean(photo))
 Z_pht=Z_pht./std(Z_pht)
 
 #genetic kinship
-@time K=FlxQTL.kinshipLoco(FlxQTL.kinshipLin,4,XX);
+@time K=FlxQTL.kinshipLoco(FlxQTL.kinshipLin,XX,4);
 @time T, Λ=K2eig(K,true);
 
 #scan w/o Kc

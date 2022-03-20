@@ -1,7 +1,7 @@
 #  implemented in linux machine & saved in linux & imac
 using Distributed, Statistics, StatsBase, DelimitedFiles, LinearAlgebra
 @everywhere using FlxQTL
-@time FlxQTL.setSeed(10,200)
+@time FlxQTL.setSeed(123)
 
 # data:  unzipped and saved to a csv format
 @time anno=readdlm("../testdata/mouse_hs1940_anno.csv",',');

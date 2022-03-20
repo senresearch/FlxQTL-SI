@@ -12,11 +12,11 @@ impgen1=copy(impgen);
 impgen1[impgen1.==0.0].=-1.0;
 
 #genotype data for 1D scan
-labels=readdlm(string(@__DIR__,"/../processedData/marlabels_agren.csv"),',';skipstart=1);
+labels=readdlm(string(@__DIR__,"/../processedData/marlabels_agren.csv",',';skipstart=1);
 XX=FlxQTL.Markers(labels[:,1],labels[:,2],labels[:,3],impgen1');
 
 ## read phenotype data
-pheno =readdlm(string(@__DIR__,"/../processedData/pheno2013_imp.csv"),',';header=true);
+pheno =readdlm(string(@__DIR__,"/../processedData/pheno2013_imp.csv",',';header=true);
 pheno=pheno[1][:,2:end-1];
 Y=convert(Array{Float64,2},pheno');
 Ystd=(Y.-mean(Y,dims=2))./std(Y,dims=2);
@@ -29,7 +29,7 @@ m,q=size(Z)
 #climate covariates: daily soil/air temperature ranges: it 7/2009-6/2012, sw 7/2009-6/2012
 #soil daily range temperature
 # 365 days by 6 envir
-soilDailyRng=readdlm(string(@__DIR__,"/../processedData/agren_soilDailyRng_it_sw_09-12.txt"),'\t');
+soilDailyRng=readdlm(string(@__DIR__,"/../processedData/agren_soilDailyRng_it_sw_09-12.txt",'\t');
 sRngStd=(soilDailyRng.-mean(soilDailyRng))./std(soilDailyRng);
 
 #air daily range temperature

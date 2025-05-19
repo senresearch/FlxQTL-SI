@@ -63,7 +63,7 @@ incl_idx=findall(diff(mar2d[:,3]).>=0.25)
 
 #selecting markers
 X0=FlxQTL.mat2array(3,geno2d')
-X0=X0[incl_idx,:,:]
+X0=X0[:,:,incl_idx]
 X1=FlxQTL.array2mat(3,X0)
 
 mar2=mar2d[incl_idx,:]    

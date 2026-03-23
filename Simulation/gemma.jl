@@ -1,7 +1,9 @@
 #  implemented in linux machine & saved in linux & imac
 using Distributed, Statistics, StatsBase, DelimitedFiles, LinearAlgebra
+#gererating workers to match the size of threads used by GEMMA
+addprocs(32)
 @everywhere using FlxQTL
-@time FlxQTL.setSeed(123)
+@time setSeed(123)
 
 # data:  unzipped and saved to a csv format
 @time anno=readdlm("../testdata/mouse_hs1940_anno.csv",',');
@@ -9,202 +11,180 @@ using Distributed, Statistics, StatsBase, DelimitedFiles, LinearAlgebra
 ##using imputed phenotypes (1940x3)
 @time phen=readdlm("../testdata/mouse_hs1940_imp_pheno.txt");
 
-######  computation time comparison by increasing genotype & trait data size
-#sort genotype by chr
-
-ch1=findall(anno[:,3].==1); #1044
-ch2=findall(anno[:,3].==2); #948
-ch3=findall(anno[:,3].==3); #857
-ch4=findall(anno[:,3].==4); #778
-ch5=findall(anno[:,3].==5); #770
-ch6=findall(anno[:,3].==6); #709
-ch7=findall(anno[:,3].==7); #658
-ch8=findall(anno[:,3].==8); #615
-ch9=findall(anno[:,3].==9); #630
-ch10=findall(anno[:,3].==10);#481
-ch11=findall(anno[:,3].==11);#706
-ch12=findall(anno[:,3].==12);#550
-ch13=findall(anno[:,3].==13);#573
-ch14=findall(anno[:,3].==14);#590
-ch15=findall(anno[:,3].==15);#527
-ch16=findall(anno[:,3].==16);#497
-ch17=findall(anno[:,3].==17);#535
-ch18=findall(anno[:,3].==18);#456
-ch19=findall(anno[:,3].==19);#302
-
-#write files for accumulated chr's
-open("../testdata/mouse_hs1940_genochr18.txt","w") do io
-    writedlm(io, gen[[ch1;ch2;ch3;ch4;ch5;ch6;ch7;ch8;ch9;ch10;ch11;ch12;ch13;ch14;ch15;ch16;ch17;ch18],:])
-end
-
-
-#simulated phenotype data
-n,m=size(phen)
-indx=zeros(Int64,n,3)
-for j=1:3
- indx[:,j]=shuffle(1:n)
-end
-
-Y6=[phen phen[indx[:,1],:]]; rank(Y6)
-Y9= [Y6 phen[indx[:,2],:]]; rank(Y9)
-Y12=[Y9 phen[indx[:,3],:]]; rank(Y12)
-
-open("../testdata/mouse_hs1940_simulated6traits.txt","w")do io
-        writedlm(io, Y6)
-end
-
-open("../testdata/mouse_hs1940_simulated9traits.txt","w")do io
-        writedlm(io, Y9)
-end
-open("../testdata/mouse_hs1940_simulated12traits.txt","w")do io
-        writedlm(io, Y12)
-end
-
-
-
-
 #FlxQTL
-
-gen1=readdlm("../testdata/mouse_hs1940_genochr1.txt")[:,4:end]; @time rmid1=FlxQTL.getGenoidx(gen1 ,0.01); #950
-gen2=readdlm("../testdata/mouse_hs1940_genochr2.txt")[:,4:end]; @time rmid2=FlxQTL.getGenoidx(gen2 ,0.01); #1776
-gen3=readdlm("../testdata/mouse_hs1940_genochr3.txt")[:,4:end]; @time rmid3=FlxQTL.getGenoidx(gen3 ,0.01); #2570
-gen4=readdlm("../testdata/mouse_hs1940_genochr4.txt")[:,4:end]; @time rmid4=FlxQTL.getGenoidx(gen4 ,0.01); #3311
-gen5=readdlm("../testdata/mouse_hs1940_genochr5.txt")[:,4:end]; @time rmid5=FlxQTL.getGenoidx(gen5 ,0.01); #3909
-gen6=readdlm("../testdata/mouse_hs1940_genochr6.txt")[:,4:end]; @time rmid6=FlxQTL.getGenoidx(gen6 ,0.01); #4564
-gen7=readdlm("../testdata/mouse_hs1940_genochr7.txt")[:,4:end]; @time rmid7=FlxQTL.getGenoidx(gen7 ,0.01); #5151
-gen8=readdlm("../testdata/mouse_hs1940_genochr8.txt")[:,4:end]; @time rmid8=FlxQTL.getGenoidx(gen8 ,0.01); #5696
-gen9=readdlm("../testdata/mouse_hs1940_genochr9.txt")[:,4:end]; @time rmid9=FlxQTL.getGenoidx(gen9 ,0.01); #6259
-gen10=readdlm("../testdata/mouse_hs1940_genochr10.txt")[:,4:end]; @time rmid10=FlxQTL.getGenoidx(gen10 ,0.01); #6634
-gen11=readdlm("../testdata/mouse_hs1940_genochr11.txt")[:,4:end]; @time rmid11=FlxQTL.getGenoidx(gen11 ,0.01); #7304
-gen12=readdlm("../testdata/mouse_hs1940_genochr12.txt")[:,4:end]; @time rmid12=FlxQTL.getGenoidx(gen12 ,0.01); #7826
-gen13=readdlm("../testdata/mouse_hs1940_genochr13.txt")[:,4:end]; @time rmid13=FlxQTL.getGenoidx(gen13 ,0.01); #8308
-gen14=readdlm("../testdata/mouse_hs1940_genochr14.txt")[:,4:end]; @time rmid14=FlxQTL.getGenoidx(gen14 ,0.01); #8784
-gen15=readdlm("../testdata/mouse_hs1940_genochr15.txt")[:,4:end]; @time rmid15=FlxQTL.getGenoidx(gen15 ,0.01); #9245
-gen16=readdlm("../testdata/mouse_hs1940_genochr16.txt")[:,4:end]; @time rmid16=FlxQTL.getGenoidx(gen16 ,0.01); #9700
-gen17=readdlm("../testdata/mouse_hs1940_genochr17.txt")[:,4:end]; @time rmid17=FlxQTL.getGenoidx(gen17 ,0.01); #10138
-gen18=readdlm("../testdata/mouse_hs1940_genochr18.txt")[:,4:end]; @time rmid18=FlxQTL.getGenoidx(gen18 ,0.01); #10522
-
-X1=FlxQTL.Markers(anno[rmid1,1],anno[rmid1,3],anno[rmid1,4],gen1[rmid1,:])
-X2=FlxQTL.Markers(anno[rmid2,1],anno[rmid2,3],anno[rmid2,4],gen2[rmid2,:])
-X3=FlxQTL.Markers(anno[rmid3,1],anno[rmid3,3],anno[rmid3,4],gen3[rmid3,:])
-X4=FlxQTL.Markers(anno[rmid4,1],anno[rmid4,3],anno[rmid4,4],gen4[rmid4,:])
-X5=FlxQTL.Markers(anno[rmid5,1],anno[rmid5,3],anno[rmid5,4],gen5[rmid5,:])
-X6=FlxQTL.Markers(anno[rmid6,1],anno[rmid6,3],anno[rmid6,4],gen6[rmid6,:])
-X7=FlxQTL.Markers(anno[rmid7,1],anno[rmid7,3],anno[rmid7,4],gen7[rmid7,:])
-X8=FlxQTL.Markers(anno[rmid8,1],anno[rmid8,3],anno[rmid8,4],gen8[rmid8,:])
-X9=FlxQTL.Markers(anno[rmid9,1],anno[rmid9,3],anno[rmid9,4],gen9[rmid9,:])
-X10=FlxQTL.Markers(anno[rmid10,1],anno[rmid10,3],anno[rmid10,4],gen10[rmid10,:])
-X11=FlxQTL.Markers(anno[rmid11,1],anno[rmid11,3],anno[rmid11,4],gen11[rmid11,:])
-X12=FlxQTL.Markers(anno[rmid12,1],anno[rmid12,3],anno[rmid12,4],gen12[rmid12,:])
-X13=FlxQTL.Markers(anno[rmid13,1],anno[rmid13,3],anno[rmid13,4],gen13[rmid13,:])
-X14=FlxQTL.Markers(anno[rmid14,1],anno[rmid14,3],anno[rmid14,4],gen14[rmid14,:])
-X15=FlxQTL.Markers(anno[rmid15,1],anno[rmid15,3],anno[rmid15,4],gen15[rmid15,:])
-X16=FlxQTL.Markers(anno[rmid16,1],anno[rmid16,3],anno[rmid16,4],gen16[rmid16,:])
-X17=FlxQTL.Markers(anno[rmid17,1],anno[rmid17,3],anno[rmid17,4],gen17[rmid17,:])
-X18=FlxQTL.Markers(anno[rmid18,1],anno[rmid18,3],anno[rmid18,4],gen18[rmid18,:])
-
-@time rmid=FlxQTL.getGenoidx(gen[:,4:end] ,0.01); #10783
-X19=FlxQTL.Markers(anno[rmid,1],anno[rmid,3],anno[rmid,4],gen[rmid,4:end])
+@time rmid=getGenoidx(gen[:,4:end] ,0.01); #10783
+X19=Markers(anno[rmid,1],anno[rmid,3],anno[rmid,4],gen[rmid,4:end])
 
 Y=convert(Array{Float64,2},phen');
 # m,n=size(Y)
 
 # computing kinship (no loco) and save it to a file (using actual data from GEMMA)
-time gemma.3 -g ../testdata/mouse_hs1940.geno.txt.gz -p ../testdata/mouse_hs1940.pheno.txt -a ../testdata/mouse_hs1940.anno.txt -gk -o kinship -no-check
+time gemma -g ../testdata/mouse_hs1940.geno.txt.gz -p ../testdata/mouse_hs1940.pheno.txt -a ../testdata/mouse_hs1940.anno.txt -gk -o kinship -no-check
 
 K=readdlm("../runtest/output/kinship.cXX.txt");
-@time T,λ =FlxQTL.K2eig(K+0.00001I); #2.15s
+@time T,λ =K2eig(K+0.00001I); #2.15s
 
 #####whole genescan for comparison w/o loco
-@time lod,B,est0= FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X19);
-open("../test/HS1940mouse3traits-allscan.txt","w")do io
-    writedlm(io, lod)
+@time lnp,B,est0= gene1Scan(1,T,λ,Y,X19;LogP=true);
+open("../runtest/HS1940mouse3traits-allscan_logP.txt","w")do io
+    writedlm(io, lnp)
 end
 
-time gemma.3 -g ../testdata/mouse_hs1940.geno.txt.gz -p ../testdata/mouse_hs1940_imp_pheno.txt -n 1 2 3 -k ./output/kinship.cXX.txt -lmm 2 -o lrt3_ch19-v3 -no-check
+time gemma -g ../testdata/mouse_hs1940.geno.txt.gz -p ../testdata/mouse_hs1940_imp_pheno.txt -n 1 2 3 -k ./output/kinship.cXX.txt -lmm 2 -o lrt3_ch19-v3 -no-check
+
+######  computation time comparison by increasing trait data size
+
+
+#generating simulated phenotype data
+
+#generating a set of 3-30 traits increased by 3
+function sim_Data(rawData, itr)
+    n,m=size(rawData);y=[]
+    for i=1:itr #how many datasets?
+     y=rawData[shuffle(1:n),:]
+     
+      for j=2:10
+         indx=shuffle(1:n)
+         y=[y rawData[indx,:]]
+          if (rank(y)!= (m+3*(j-1)))
+             y[:,(end-2):end]= rawData[shuffle(1:n),:]
+             print(rank(y)==size(y,2))
+          end
+        end
+      writedlm("../testdata/ms_HS1940_simulated$(i).txt",y)
+    end
+end
 
 ###### computation times
-# all but chr1
-function runTime(m,Y)
-    flxT=zeros(5,64);
+# measure runtime per dataset.
+function runTime(Y,nset,itr) 
 
-    for j=1:64
-flxT[1,j] = @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X3);
-flxT[2,j] = @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X7);
-flxT[3,j] = @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X11);
-flxT[4,j] = @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X15);
-flxT[5,j] = @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X19);
-    end
-    return flxT
-    end
+     rt=[];mtime=zeros(nset)
+    for j=1:nset
 
-
- mtim0= runTime(3,Y);
- median(mtim0,dims=2)
- open("mouse_hs1940_runtime4chr_3traits.txt","w")do io
-        writedlm(io,mtim0)
+        for l=1:itr+1
+         rt0 = @elapsed lod,B,est0 = gene1Scan(1,T,λ,Y[1:3j,:],X19);
+         rt=[rt;rt0]
         end
-
-for j=1:3
-    Y=readdlm("../testdata/mouse_hs1940_simulated$(3j+3)traits.txt")
-        Y=convert(Array{Float64,2},Y');  m=size(Y,1)
-        mtime=runTime(m,Y)
-    open("mouse_hs1940_runtime4chr_$(m)traits.txt","w")do io
-        writedlm(io,mtime)
-        end
-     display([m;median(mtime,dims=2)])
-end
-
-
-#Chr1 only
-function fqtl_time(m,Y)
-    fqtl=zeros(64);
-    for j=1:64
-    fqtl[j]= @elapsed lod,B,est0 =FlxQTL.geneScan(1,T,Matrix(1.0I,m,m),λ,ones(m),Y,X1);
+        mtime[j]=mean(rt[2:end]) #discard the first
     end
-    return fqtl
+    return mtime
 end
 
-
-   f= open("mouse_hs1940_chr1runtime_6_9_12traits.txt","w")
-for j=1:3
-    Y=readdlm("../testdata/mouse_hs1940_simulated$(3j+3)traits.txt")
-        Y=convert(Array{Float64,2},Y');  m=size(Y,1)
-        mtime=fqtl_time(m,Y)
-        display([m median(mtime)])
-       f= open("mouse_hs1940_chr1runtime_6_9_12traits.txt","a")
-        writedlm(f,mtime')
-        close(f)
+#generating 5 simulated datsets per trait set
+sim_Data(phen,5)
+#check if all data are correctly generated:
+for j=1:5
+    y=readdlm("../testdata/ms_HS1940_simulated$(j).txt")
+    print([size(y) rank(y)])
 end
 
+    Y0=readdlm("../testdata/ms_HS1940_simulated1.txt");
+    Y0=convert(Array{Float64,2},Y0');
+    meantimes = runTime(Y0,10,5)
+    writedlm("../Result/time_comparision_flxqtl.txt",[meantimes'])
 
-#concatenating outputs for file update
-chr1=readdlm(homedir()*"/Mountpt/analysis/mouse_hs1940_chr1runtime_6_9_12traits.txt")
 
- idx=[1;3; 7; 11; 15; 19]
-fq3=readdlm(homedir()*"/Mountpt/analysis/mouse_hs1940_runtime4chr_3traits.txt")
-flx3=[3;median(fq3,dims=2)[idx,1].+2.15 ]
-
-fq6=readdlm(homedir()*"/Mountpt/analysis/mouse_hs1940_runtime4chr_6traits.txt")
-open("../test/mouse_hs1940_runtime4chr1-3-7-11-15-19_6traits.txt","w")do io
-    writedlm(io,[chr1[[1],:];fq6])
+j=2:5
+    Y0=readdlm("../testdata/ms_HS1940_simulated$(j).txt")
+    Y0=convert(Array{Float64,2},Y0');
+    meantimes = runTime(Y0,10,5)
+    f=open("../Result/time_comparision_flxqtl.txt","a")
+     writedlm(f,[meantimes'])
+     close(f)
 end
-f6=readdlm("../test/mouse_hs1940_runtime4chr1-3-7-11-15-19_6traits.txt")
-flx6=[ 6.0;median(f6,dims=2)[:,1].+2.15]
+#  mtim0= runTime(Y);
+#  median(mtim0,dims=2)
+#  open("mouse_hs1940_runtime4chr_3traits.txt","w")do io
+#         writedlm(io,mtim0)
+#         end
 
-fq9=readdlm(homedir()*"/Mountpt/analysis/mouse_hs1940_runtime4chr_9traits.txt")
-open("../test/mouse_hs1940_runtime4chr1-3-7-11-15-19_9traits.txt","w")do io
-    writedlm(io,[chr1[[2],:];fq9])
-end
-f9=readdlm("../test/mouse_hs1940_runtime4chr1-3-7-11-15-19_9traits.txt")
-flx9=[9;median(f9,dims=2)[:,1].+2.15]
 
-fq12=readdlm(homedir()*"/Mountpt/analysis/mouse_hs1940_runtime4chr_12traits.txt")
-open("../test/mouse_hs1940_runtime4chr1-3-7-11-15-19_12traits.txt","w")do io
-    writedlm(io,[chr1[[end],:];fq12])
-end
-f12=readdlm("../test/mouse_hs1940_runtime4chr1-3-7-11-15-19_12traits.txt")
-flx12=[12;median(f12,dims=2)[:,1].+2.15]
+#     med3tr= runTime(Y)
+#     writedlm("../Result/mouse_hs1940_flxqtl_64runtimes_$(m)traits_chr1-3-7-11-15-19.txt",med3tr)
+#     display([m mean(med3tr,dims=2)'])
+#     writedlm("../Result/mouse_hs1940_flxqtl-mean_time_3-12traitsBychr4incr.txt",[m mean(med3tr,dims=2)'])
+      
+    
+# # for j=1:3
+# #     Y=readdlm("../testdata/mouse_hs1940_simulated$(3j+3)traits.txt")
+#         Y=convert(Array{Float64,2},Y');  m=size(Y,1)
+#         mtime=runTime(Y)
+#         writedlm("../Result/mouse_hs1940_flxqtl_64runtimes_$(m)traits_chr1-3-7-11-15-19.txt",mtime)
+#     f= open("../Result/mouse_hs1940_flxqtl-mean_time_3-12traitsBychr4incr.txt","a")
+#         writedlm(f,[m mean(mtime,dims=2)'])
+#         close(f)
+#       display([m mean(mtime,dims=2)'])
+# end
+
+#6traits: 304s
+#9;683s
+y=readdlm("../testdata/mouse_hs1940_simulated6traits.txt");y=Float64.(y');
+@time lod6,b6,est06=gene1Scan(1,T,λ,y,X19);
+@time lod6,b6,est06=gene1Scan(1,T,λ,y,X19;penalize=true);
+y9=readdlm("../testdata/mouse_hs1940_simulated9traits.txt");y9=Float64.(y9');
+@time lod9,b9,est09=gene1Scan(1,T,λ,y9,X19);
+@time lod9,b9,est09=gene1Scan(1,T,λ,y9,X19;penalize=true);
+
+#12; 1292s
+y12=readdlm("../testdata/mouse_hs1940_simulated12traits.txt");y12=Float64.(y12');
+@time lod12,b12,est12=gene1Scan(1,T,λ,y12,X19);
+@time lod12,b12,est12=gene1Scan(1,T,λ,y12,X19;penalize=true);
+
+ y15=readdlm("../testdata/mouse_hs1940_simulated15traits.txt"); y15=Float64.(y15');
+ @time lod15,B,est15 =gene1Scan(1,T,λ,y15,X19); #2280 vs 1129s gemma
+ @time lod15,B,est15 =gene1Scan(1,T,λ,y15,X19;penalize=true,df_prior=Int64(ceil(1.5*size(y15,1)))); #3778s
+ 
+  y18=readdlm("../testdata/mouse_hs1940_simulated18traits.txt");y18=Float64.(y18')
+@time lod18,B,est18 =gene1Scan(1,T,λ,y18,X19); # 3126,3153s vs 6404s gemma
+@time lod18,B,est18 =gene1Scan(1,T,λ,y18,X19;penalize=true,df_prior=Int64(ceil(1.5*size(y18,1)))); #6529s
+ y21=readdlm("../testdata/mouse_hs1940_simulated21traits.txt");y21=Float64.(y21');rank(y21)
+@time lod21,B,est0 =gene1Scan(1,T,λ,y21,X19); #4595,4405s vs 5710s gemma
+sum(lod21.<0)
+# @time lod21,B,est21 =gene1Scan(1,T,λ,y21,X19;penalize=true,df_prior=Int64(ceil(1.9*size(y21,1)))); 
+
+
+y24=readdlm("../testdata/mouse_hs1940_simulated24traits.txt");y24=Float64.(y24');rank(y24) # m=24
+@time lod24,B,est24 =gene1Scan(1,T,λ,y24,X19); sum(lod24.<0) #6203 vs 48,396s gemma
+@time lod,B,est24 =gene1Scan(1,T,λ,y2,X19;penalize=true,df_prior=Int64(ceil(1.9*size(y24,1)))); #
+y27=readdlm("../testdata/mouse_hs1940_simulated27traits.txt");y27=Float64.(y27') #m=27
+@time lod27,B,est27 =gene1Scan(1,T,λ,y27,X19); #8239 vs 128,784s gemma
+@time lod27,B,est27 =gene1Scan(1,T,λ,y27,X19;penalize=true,df_prior=Int64(ceil(1.9*size(y27,1)))); #
+y30=readdlm("../testdata/mouse_hs1940_simulated30traits.txt");y30=Float64.(y30');rank(y30) #m=30
+@time lod30,B,est30 =gene1Scan(1,T,λ,y30,X19); sum(lod30.<0) #10519s vs 35624s gemma
+@time lod30,B,est30 =gene1Scan(1,T,λ,y30,X19;penalize=true,df_prior=Int64(ceil(1.9*size(y30,1)))); #
+
+#gemma test
+(time gemma -g ../testdata/mouse_hs1940.geno.txt.gz -p ../testdata/mouse_hs1940_simulated15traits.txt -n 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 -k ./output/kinship.cXX.txt -lmm 2 -o lrt15_ch19-v3 -no-check)2>> gemma_runtime15_30trait.txt
+(time gemma -g ../testdata/mouse_hs1940.geno.txt.gz -p ../testdata/mouse_hs1940_simulated18traits.txt -n 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 -k ./output/kinship.cXX.txt -lmm 2 -o lrt18_ch19-v3 -no-check)2>> gemma_runtime15_30trait.txt
+(time gemma -g ../testdata/mouse_hs1940.geno.txt.gz -p ../testdata/mouse_hs1940_simulated21traits.txt -n 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 -k ./output/kinship.cXX.txt -lmm 2 -o lrt21_ch19-v3 -no-check)2>> gemma_runtime21_30trait1.txt
+(time gemma -g ../testdata/mouse_hs1940.geno.txt.gz -p ../testdata/mouse_hs1940_simulated24traits.txt -n 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 -k ./output/kinship.cXX.txt -lmm 2 -o lrt24_ch19-v3 -no-check)2>> gemma_runtime15_30trait.txt
+(time gemma -g ../testdata/mouse_hs1940.geno.txt.gz -p ../testdata/mouse_hs1940_simulated27traits.txt -n 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 -k ./output/kinship.cXX.txt -lmm 2 -o lrt27_ch19-v3 -no-check)2>> gemma_runtime21_30trait.txt
+(time gemma -g ../testdata/mouse_hs1940.geno.txt.gz -p ../testdata/mouse_hs1940_simulated30traits.txt -n 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 -k ./output/kinship.cXX.txt -lmm 2 -o lrt30_ch19-v3 -no-check)2>> gemma_runtime21_30trait1.txt
+
+
+# #Chr1 only
+# function fqtl_time(Y)
+#     fqtl=zeros(64);
+#     for j=1:64
+#     fqtl[j]= @elapsed lod,B,est0 =geneScan(1,T,λ,Y,X1);
+#     end
+#     return fqtl
+# end
+
+
+#    f= open("mouse_hs1940_chr1runtime_6_9_12traits.txt","w")
+# for j=1:3
+#     Y=readdlm("../testdata/mouse_hs1940_simulated$(3j+3)traits.txt")
+#         Y=convert(Array{Float64,2},Y');  m=size(Y,1)
+#         mtime=fqtl_time(Y)
+#         display([m median(mtime)])
+#        f= open("mouse_hs1940_chr1runtime_6_9_12traits.txt","a")
+#         writedlm(f,mtime')
+#         close(f)
+# end
+
+
 
 # obtained by running gemma-time.jl (averages)
 gem3=[5.505;9.162;15.882;22.883;28.806;39.414]
@@ -270,8 +250,8 @@ gem12=  [
 
 #combine together
 
-Tdata=[flx3 flx6 flx9 flx12 [3;gem3] [6;gem6[idx]] [9;gem9[idx]] [12;gem12[idx]]]
-open("../test/runtime-flxqtl_vs_gemma_hsmouse_chr1-3-7-11-15-19.txt","w")do io
+Tdata=[[3;gem3] [6;gem6[idx]] [9;gem9[idx]] [12;gem12[idx]]]
+open("../test/mouse_hs1940_gemma-mean_time_chr1-3-7-11-15-19.txt","w")do io
     writedlm(io,Tdata)
 end
 
@@ -284,21 +264,28 @@ using Plots.PlotMeasures
 
 using FlxQTL
 #scanned value comparison using -log10(P-value)
-flx0=readdlm("../Result/HS1940mouse3traits-allscan.txt")
-flx= FlxQTL.lod2logP(flx0[:,1] ,3)
+# flx=readdlm("../Result/HS1940mouse3traits-allscan_lnP.txt")
+# flx= lod2logP(flx0[:,1] ,3)
+flx=readdlm("./result/hs1940_w_no_locoByflxqtl_logP.txt")
 gem0=readdlm("../Result/lrt3_ch19-v3.assoc.txt",'\t';header=true)
 
 #qqplot
-exptd=collect(1:length(flx))
-lexp=-log10.(exptd/(length(flx)+1))
-fobs=sort(flx;rev=true)
+exptd=collect(1:size(flx,1))
+lexp=-log10.(exptd/(size(flx,1)+1))
+fobs=sort(flx[:,end];rev=true)
+floco=sort(flx[:,1];rev=true);
 gobs=-log10.(sort(gem0[1][:,end]))
-x=collect(1:8)
+# x=collect(1:8)
+x=collect(1:11)
 
-p1=scatter(lexp,fobs,label="FlxQTL",xlims=(0,8),ylims=(0,8),xlab="Expected -log10(P)",ylab="Observed -log10(P)",aspectratio=1,grid=false,guidefontsize=25,tickfontsize=20,legendfontsize=20, marker=8,
+
+p1=scatter(lexp,fobs,label="FlxQTL",xlims=(0,11),ylims=(0,11),xlab="Expected -log10(P)",ylab="Observed -log10(P)",aspectratio=1,grid=false,guidefontsize=25,tickfontsize=20,legendfontsize=20, marker=8,
     bottom_margin=0mm,right_margin=0mm)
+ scatter!(lexp,floco,label="FlxQTL_loco",marker=8)
 scatter!(lexp,gobs,label="GEMMA",marker=8)
 plot!(x,x,linecolor=:black, label="y=x")
+
+
 
 
 #scan comparison
